@@ -1,0 +1,112 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>JSAwesome!</title>
+	<script src="js/base.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/jsawesome.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css" media="screen">
+	body {
+    font:13px/1.22 arial,helvetica,clean,sans-serif;
+	}
+		label{
+			display:block;
+			font-weight:bold;
+		}
+		i {
+		  font-weight:normal;
+		}
+		input{
+		  margin-right:5px;
+		  width:10em;
+		}
+		input.NewMake {
+		  width:7em;
+		}
+		input.C_TRIM{
+		  width:5em;
+		}
+		input.C_Year{
+		  width:3em;
+		}
+		input.C_Mileage{
+		  width:5em;
+		}
+		input.C_US_State{
+		  width:2em;
+		}
+		input.C_OriginalPrice{
+		  width:4em;
+		}
+		input.C_OriginalSymbol{
+		  width:2em;
+		}
+	</style>
+</head>
+
+<body>
+  <p>Below are a number of forms describing attributes of a car for sale.  This information needs to be verified.  Use the link provided with each form to find the page that this information was generated from.  Some attributes may not be available, just leave these fields blank.  For your convenience, the fields will remain gray until you verify each is correct.  You can either keep the value that is currently in the field or edit it</p>
+	<form method="post" id="form" action="http://www.doloreslabs.com">
+		<div id="test">
+		  
+		</div>
+		<div id="u4">
+		</div>
+		<input type="submit"/>
+	</form>
+
+<script type="text/javascript" charset="utf-8">
+	var js = new JSAwesome('test', {
+	  'NewMake':'',
+	  'NewModel':'',
+	  'C_TRIM':'',
+    'C_BodyStyle':'',
+    'C_Year':'',
+    'C_Mileage':'',
+    'C_OriginalPrice':'',
+    'C_OriginalSymbol':'',
+    'C_City':'',
+    'C_US_State':'',
+    'C_Country':''
+  }, {
+  	  'NewMake':'Make <i>(eg Ford)</i> &nbsp;/&nbsp; Model <i>(eg Mustang)</i> &nbsp;/&nbsp; Series <i>(eg GT)</i>',
+  	  'NewModel':false,
+  	  'C_TRIM':false,
+      'C_BodyStyle':'Body Style <i>(eg Sedan)</i> &nbsp;/&nbsp; Year &nbsp;/&nbsp; Mileage ',
+      'C_Year':{
+        label:false, 
+        validation:["^[12][90]\\d\\d$", "This field must be a year within the last 100"]
+      },
+      'C_Mileage':{
+        label:false, 
+        validation:["^\\d+$", "This field must be a number"]
+      },
+      'C_OriginalPrice':{
+        label:'Price &nbsp;/&nbsp; Currency <i>(eg $)</i>', 
+        validation:["^[\\d,]+(\\.\\d\\d)?$", "This field must be a currency without a symbol <i>(eg 23000 or 23,000.05)</i>"]
+      },
+      'C_OriginalSymbol':false,
+      'C_City':'City &nbsp;/&nbsp; State &nbsp;/&nbsp; Country',
+      'C_US_State':false,
+      'C_Country':false
+    })
+	js.to_html()
+        var json = {}
+              var legend = {"C_Mileage":{"label":false,"validation":["^\\d+$","This field must be a number"]},"NewMake":"Make <i>(eg Ford)<\/i> &nbsp;\/&nbsp; Model <i>(eg Mustang)<\/i> &nbsp;\/&nbsp; Series <i>(eg GT)<\/i>","C_OriginalPrice":{"label":"Price &nbsp;\/&nbsp; Currency <i>(eg $)<\/i>","validation":["^[\\d,]+(\\.\\d\\d)?$","This field must be a currency without a symbol <i>(eg 23000 or 23,000.05)<\/i>"]},"NewModel":false,"C_OriginalSymbol":false,"C_TRIM":false,"C_City":"City &nbsp;\/&nbsp; State &nbsp;\/&nbsp; Country","C_BodyStyle":"Body Style <i>(eg Sedan)<\/i> &nbsp;\/&nbsp; Year &nbsp;\/&nbsp; Mileage ","C_US_State":false,"C_Year":{"label":false,"validation":["^[12][90]\\d\\d$","This field must be a year within the last 100"]},"C_Country":false}
+
+
+              var j4 = $extend(json, {"_URL":"http:\/\/www.lemonfree.com\/3067447.html","C_Mileage":"39000","NewMake":"Lexus","C_OriginalPrice":"26000","NewModel":"RX","C_OriginalSymbol":null,"C_TRIM":"NULL","C_City":"Highlands Ranch","C_BodyStyle":"SUV","C_US_State":"CO","C_Year":"2002","C_Country":"United States"})
+              var u4 = new JSAwesome('u4', j4, legend)
+              u4.to_html()
+	$('form').addEvent('submit', js.validate.bind(js));
+	$$('input[type=text]').set('style', 'background:#CCC')
+	$$('input[type=text]').addEvent('focus', function(){
+	  js.validate.bind(js)()
+	  this.set('style','background:#FFF')
+	})
+</script>
+</body>
+</html>

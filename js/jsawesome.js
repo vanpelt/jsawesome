@@ -5,57 +5,74 @@ window.addEvent('load', function(){
   Scroller = new Fx.Scroll(window, {link:'chain', offset:{x:0,y:-25}})
 })
 JSAwesome = new Class({
-	initialize: function(name, json, labels, required){
+	initialize: function(name, json, labels){
 	  this.name = name
 		this.json = json
-		this.required = ($type(required) == "array" ? required : (required ? $H(this.json).getKeys() : []))
 		this.labels = labels || {}
+		this.validations = $H(labels).getKeys().filter(function(f){
+		  return labels[f]['required'] || labels[f]['validation']
+		})
 		this.level = 0
 		this.delay = (delay -= 20) 
 		this.in_select = false
 		this.nested = {}
 	},
 	to_html: function() {
-	  var n = []
-	  $H(this.json).each(function(v,k){
+	  var m = []
+	  $A(this.json).each(function(p){
+	    var n = []
 	    //Allows you to reference previous selects...
-	    if($type(v)=="string" && this.json[v])
-	      v = this.json[v]
-	    n.push(this._process(v,k))
+	    if($type(p[1])=="number" && this.json[p[1]])
+	      p[1] = this.json[p[1]][1]
+	    if($type(p[0])=="array"){
+	      n.push(p.map(function(r){
+	        return new Element('div', {style:'float:left;margin-right:5px'}).adopt(this._process(r[1],r[0]))
+	      }, this))
+	      n.push(new Element('br', {style:'clear:left'}))
+	    } else
+	      n.push(this._process(p[1],p[0]))
+	    m.push(new Element('div', {'class':'error'}).adopt(n))
 	    this.level = 0
 	  }, this);
-	 return $(this.name).adopt(n)
+	 return $(this.name).adopt(m)
 	},
 	label: function(name, wafor) {
-	  if(this.labels[name]) 
-	    name = this.labels[name]
-	  else
-	    name = name.replace(/^[_#]/,'').replace(/_/g,' ').capitalize()
-	  return new Element('label', {'for':wafor, 'html':name}) 
+	  var newname = null
+	  if($defined(this.labels[name])) {
+	    if($defined(this.labels[name]['label']))
+	      newname = this.labels[name]['label']
+	    else
+	      newname = this.labels[name]
+	    if($type(newname) == "object")
+	      newname = null
+	  }
+	  if(!$defined(newname))
+	    newname = name.replace(/^[_#]/,'').replace(/_/g,' ').capitalize()
+	  return (newname == false ? null : new Element('label', {'for':wafor, 'html':newname}))
 	},
-	validate: function() {
-	  return this.required.every(function(r){
+	validate: function(e) {
+	  return this.validations.every(function(r){
 	    var checking = $(this.name).getElement('.'+r.replace(/^[_#~*]/,''))
-	    var invalid = false
-	    var wrapper = checking
-	    if(checking.get('tag') == 'div') {
-	      wrapper = checking.getChildren()[1]
-	      invalid = !checking.getChildren().every(function(c){
-	        checking = c
-	        return !(c.get('value') === "")
-	      });
-	    } else 
-	      invalid = (checking.get('value') === "")
+	    var error = checking.getParent('.error')
+	    var invalid = this._check(checking)
 	    if(invalid) {
-	      checking.set('style', 'background:#d88b7e')
-	      var mes = new Element('div', {
-	        style: 'color:red',
-	        html:'This is a required field'
-	      }).inject(wrapper, 'before')
-	      checking.addEvent('blur', function(){
-	        checking.set('style', 'background:')
-	        mes.dispose()
-	      })
+	      invalid[1].set('style', 'background:#d88b7e')
+	      if(error.getChildren().getLast().innerHTML != invalid[0]) {
+	        var mes = new Element('div', {
+	          style: 'color:red',
+	          html:invalid[0]
+	        }).inject(error)
+	      }
+	      invalid[1].addEvent(invalid[2] ? 'change' : 'blur', function(){
+	        var check = this._check(checking)
+	        if(!check || invalid[1] != check[1]) {
+	          invalid[1].set('style', 'background:')
+	          if(mes){
+	            mes.dispose()
+	            mes = false
+	          }
+	        }
+	      }.bind(this))
 	      if(this.delay > 0) 
 	        Scroller.toElement.delay(this.delay, Scroller, checking)
 	      return false
@@ -63,11 +80,28 @@ JSAwesome = new Class({
 	      return true
 	  }, this)
 	},
+	_check: function(element) {
+	  var invalid = false
+	  var label = this.labels[element.get('class')]
+	  if(element.get('tag') == 'div') {
+      invalid = !element.getChildren().every(function(c){
+        element = c
+        return !(c.get('value') === "")
+      });
+      if(invalid) return ["This is a required field", element, true]
+    } else if(label['required'] && element.get('value') === "")
+      return ["This is a required field", element]
+    else if(label['validation'] && element.get('value') !== "") {
+      var args = $splat(label['validation'][0])
+      var regex = new RegExp(args[0], args[1])
+      return (regex.test(element.get('value')) ? false : [label['validation'][1], element])
+    }
+	},
 	_process: function(cur, names, nested) {
-	  names = [names].flatten();
+	  names = $splat(names);    
 	  switch($type(cur)) {
 	    //a select tag
-	    case 'array':
+	    case 'array':	    
 	      this.in_select = true
 	      var root = !this.level
 	      if(cur.length > 1)
