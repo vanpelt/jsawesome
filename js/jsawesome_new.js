@@ -12,8 +12,7 @@ JSAwesome = new Class({
 		this.validations = $H(labels).getKeys().filter(function(f){
 		  return labels[f]['required'] || labels[f]['validation']
 		})
-		this.level = 0
-		this.delay = (delay -= 20) 
+		this.level = 0 
 		this.in_select = false
 		this.nested = {}
 	},
@@ -52,10 +51,11 @@ JSAwesome = new Class({
 	},
 	validate: function(e) {
 	  return this.validations.every(function(r){
-	    var checking = $(this.name).getElement('.'+r.replace(/^[_#~*]/,''))
+	    var checking = $(this.name).getElement('.'+r.replace(/^[_#~*^]/,''))
 	    var error = checking.getParent('.error')
 	    var invalid = this._check(checking)
 	    if(invalid) {
+	      this.delay = (delay -= 20)
 	      invalid[1].set('style', 'background:#d88b7e')
 	      if(error.getChildren().getLast().innerHTML != invalid[0]) {
 	        var mes = new Element('div', {
@@ -63,7 +63,7 @@ JSAwesome = new Class({
 	          html:invalid[0]
 	        }).inject(error)
 	      }
-	      invalid[1].addEvent(invalid[2] ? 'change' : 'blur', function(){
+	      invalid[1].addEvent(invalid[2] || 'blur', function(){
 	        var check = this._check(checking)
 	        if(!check || invalid[1] != check[1]) {
 	          invalid[1].set('style', 'background:')
@@ -106,60 +106,40 @@ JSAwesome = new Class({
       return (regex.test(element.get('value')) ? false : [label['validation'][1], element])
     }
 	},
-	_process: function(cur, names, nested) {
-	  names = $splat(names);    
+	_process: function(cur, name, parent) {
 	  switch($type(cur)) {
 	    //a select tag
 	    case 'array':
-	      if(names[0].test(/^\*/)) {
-          return new Element('fieldset').adopt(
-          [this.label(names[0].substring(1), new Element('legend'))].concat(cur.map(function(c){
-            return this._process(c, names);
-          }, this)));
-        } else { 
-	        this.in_select = true
-	        var root = !this.level
+	      if(name.test(/^\*/)) {
+	        return new Element('fieldset').adopt(
+	        [this.label(names[0].substring(1), new Element('legend'))].concat(cur.map(function(c){
+	          return this._process(c, names);
+	        }, this)));
+	      } else {
 	        cur = cur.sort()
-          //Make the other / custom field go to the end...
-          var other = false
-          cur.some(function(a){ 
-            return other = a.test(/~/) ? a : other
-          })
-          if(other)
-            cur.remove(other).push(other)
+	        //Make the other / custom field go to the end...
+	        var other = false
+	        cur.some(function(a){ return a.test(/~/) ? a : other})
+	        if(other)
+	          cur.remove(other).push(other)
 	        if(cur.length > 1)
-	          cur = ["Choose "+(this.level==0 ? "Category" : "Subcategory")].concat(cur)
-	        else if(this.level <= 1 && cur.length > 0)
-	          root = true
-	        var name = this.name+"_"+names[0]
-	        var klass = [names[0],this.level].join("_")
+	          cur = ["Choose "+(parent ? "Subcategory" : "Category")].concat(cur)
+	        var named = this.name+"_"+name
+	        var level = parent ? parent.$attributes.level : null
+	        var klass = [named,level].clean().join("_")
 	        var els = []
-	        if(!root) {
-	          //Add the subcategory dropdown
-	          var store = klass
-	          if(names.getLast() == "_") {
-	            var classes = klass.split('_')
-	            //Go back one level
-	            store = classes.concat([classes.pop().toInt() - 1]).join('_')
-	            names.pop()
-	          }
-	          this._store(store, names.getLast(), cur, klass, name)
-	          this.in_select = false
+	        if(parent) {
+	          //DO SOMETHING TO REFERENCE SUB SELECTS
+	          parent.$attributes.children = this._nested(name, cur, klass, level)
 	          return null
 	        } else {
-	          if(this.level==0)
-	            els.push(this.label(names[0], name))
-	          if(!nested)
-	            klass += ' '+names[0]
-	          els = els.concat(this._nested(name, cur, klass))
-	          this.in_select = false
-  	        return els
+	          els.push(this.label(name, named))
+	          return els.concat(this._nested(name, cur, klass, level))
 	        }
 	      }
 	    case 'object':
 	      cur = $H(cur)
-	      var t = [this._process(cur.getKeys(), names, true)]
-	      this.level += 1
+	      var t = [this._process(cur.getKeys(), names, parent)]
 	      t.push(this._process(["Choose Subcategory"], names.concat(['_']), true))
 	      return t.concat(cur.getValues().map(function(v){
 	        return this._process(v, names.concat([cur.keyOf(v).split('|').getLast()]), true)
@@ -172,12 +152,11 @@ JSAwesome = new Class({
 	        var val = cur.split('|').getLast().replace(/Choose (Sub)?Category/i,'')
 	        cur = cur.split('|')[0].replace(/^[~*]/,'')
 	      }
-	      if(this.in_select) {
+	      if(parent) {
 	        //Allows for custom values
 	        e = new Element('option', {html: cur, value: val})
-	        //Wow this is sketchy as F
-	        var name = name.split(' ')[0]
-	        if(val.test(/^~/)) this._store(name, val, [], name, this.name+'_'+name)
+	        if(val.test(/^~/))
+            e.$attributes.extra = this._custom(parent.get('name')+'_other', 'rad')
 	      } else {
 	        if(name.test(/^#/)) {
 	          e = new Element('textarea', {
@@ -214,12 +193,10 @@ JSAwesome = new Class({
 	},
 	_custom: function(name, klass) {
 	  var val = this.labels['~'] || "Custom..."
-	  if(this.level == 1)
-	    name = name.replace(/_sub1/,'')
 	  return new Element('input', {
-      'class':(this.level > 1 ? klass+' sub' : klass)+' custom', 
+      'class':klass+' custom', 
       type: 'text', 
-      name: name+'_other', 
+      name: name, 
       value: val,
       events: {
         'focus': function(){
@@ -229,61 +206,44 @@ JSAwesome = new Class({
       }
     })
 	},
-	_store: function(store, key, options, klass, name) {
-	  name = name+'_sub'+this.level
-	  if(key.test(/^~/))
-      var type = "custom"
-    else
-      var type = options.length == 0 ? "disabled" : "select"
-	  this.nested[store] = this.nested[store] || {}
-    this.nested[store][key] = this.nested[store][key] || []
-    this.nested[store][key].push(this._nested(name, options, klass, type))
-	},
-	_nested: function(name, options, klass, type) {
+	_nested: function(name, options, klass, level, type) {
 	  type = type || 'select'
 	  if(type == "custom") {
 	    return this._custom(name, klass)
 	  } else {
 	    var select = new Element("select", {
         name: name,
-        'class': this.level > 1 ? klass+' sub' : klass,
+        'class': level > 1 ? klass+' sub' : klass,
         events: {
           change: function(event){
             var e = event.target
-            var classes = e.get('class').split('_')
-            var level = classes.pop().toInt()+1
-            var klass = classes.concat([level]).join('_')
             var it = e.get('value')
+            var option = e[e.selectedIndex]
             //Dispose namespaced in a wrapper
-            console.log('#'+this.name+' .'+classes.join('_'))
-            if(level < 3)
-              $E('#'+this.name+' .'+classes.join('_')).getElements('.custom, .sub').dispose()
-            //Add a custom input...
-            var child = false
-            if(it.test(/^~/))
-              child = [this._custom(name, klass+' sub')]
-          console.log('Looking for '+klass+' :: '+it)
-            if(this.nested[klass])
-              child = this.nested[klass][it]
-            if(!child) return
-            
+            $E('#'+this.name+' .'+classes.join('_')).getElements('.custom, .sub').dispose()
+            if(!option.$attributes.extra) return
             var test = $(this.name).getElement('.'+klass)
-            var made = (test ? child[0].replaces(test) : child[0].inject(e.getParent()))
+            //Replace or add the extras
+            if(test)
+              var made = option.$attributes.extra.replaces(test)
+            else
+              var made = option.$attributes.extra.inject(e.getParent())
             //Restore the old value instead of an empty select
-            if(child.length > 1) {
-              if(made.selectedIndex > 0)
-                var child = this.nested[classes.concat([level+1]).join('_')][made.get('value')]
-              child.getLast().inject(made, 'after')
-            }
+          //  if(child.length > 1) {
+          //    if(made.selectedIndex > 0)                
+          //      var child = this.nested[classes.concat([level+1]).join('_')][made.get('value')]
+          //    child.getLast().inject(made, 'after')
+          //  }
             //$E('#'+this.name+' .'+classes.join('_')).getElements('select').fireEvent('change')      
           }.bind(this)
         }
       })
+      select.$attributes.level = (level || -1) + 1
       if(type == "disabled")
-        select.set('style', 'display:none').set('disabled', 'disabled')
+        select.set({style: 'display:none',disabled:'disabled')
       return select.adopt(options.map(
         function(o){
-          return this._process(o, klass)
+          return this._process(o, klass, select)
         },this)
       )
     }

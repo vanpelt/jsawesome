@@ -1,0 +1,58 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>JSAwesome!</title>
+	<script src="js/base.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/jsawesome.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css" media="screen">
+		label{
+			display:block;
+		}
+	</style>
+</head>
+
+<body>
+	<form method="post" id="form" action="http://www.doloreslabs.com">
+		<div id="test">
+		</div>
+		<div id="sub">
+		</div>
+		<div id="neat">
+		</div>
+		<input type="submit"/>
+	</form>
+<script type="text/javascript" charset="utf-8">
+	var js = new JSAwesome('test', {
+	  'drop': ['single', 'dude'],
+	  'text':'',
+	  '#textarea':'Default text',
+	  '_hidden':'invisible', 
+	  'sub_cats': 
+	    {'rad': ['cool', 'neat'], 
+	     'awesome': 
+	       {'crazy': ['indeed', 'man'],
+	        'way': ['oh', 'yeah']}
+	    }})
+	js.to_html()
+	var yup = new JSAwesome('sub', {
+	  'sub_cats': 
+	    {'rad': ['cool', 'neat'], 
+	     'awesome': 
+	       {'crazy': ['indeed', 'man'],
+	        'way': []}
+	    },
+	  '_hidden':'invisible'
+	})
+	yup.to_html()
+	var neat = new JSAwesome('neat', {"category_1":{"Sports & Outdoors":["Amateur","Auto Racing","Aviation","Baseball","Basketball","Boating","Camping","Cycling","Football","Golf","Hiking","Hockey","Nature","Running","Soccer","Surf & Beach","Swimming","Tennis","Track & Field","Volleyball","Wrestling","Yoga","~Other"],"Shopping":["Fashion","Retail","~Other"],"Dance":["Ballet","Ballroom","Salsa","Swing","Tango","~Other"],"Community":["Activism","Antiques & Collectibles","Charity & Volunteer","Ethnic & Cultural","Health","History","Home & Garden","Libraries","Parades","Pets","Religion","Science","Talks & Lectures","Workshops & Classes","~Other"],"Food & Dining":["Farmers' Markets","Wine","~Other"],"Performing Arts":["Ballet","Cabaret & Review","Comedy","Literary Arts","Musicals","Opera","Poetry","Puppetry","Street Performance","Symphony","Theater","~Other"],"Other":[],"Fairs & Festivals":[],"Arts & Crafts":["Bazaar","Ceramics","Knitting","Quilting","~Other"],"Visual Arts":["Animation","Film","Galleries","Museums","Painting","Photography"],"Music":["Alternative","Blues","Classical","Country","Folk","Gospel","Jazz","Pop","R&B","Rock","Techno & Dance","World Music","~Other"],"Business & Tech":["Cars","Conferences & Trade Shows","Gaming & Technology","Real Estate","~Other"]},"category_2":{"Sports & Outdoors":["Amateur","Auto Racing","Aviation","Baseball","Basketball","Boating","Camping","Cycling","Football","Golf","Hiking","Hockey","Nature","Running","Soccer","Surf & Beach","Swimming","Tennis","Track & Field","Volleyball","Wrestling","Yoga","~Other"],"Shopping":["Fashion","Retail","~Other"],"Dance":["Ballet","Ballroom","Salsa","Swing","Tango","~Other"],"Community":["Activism","Antiques & Collectibles","Charity & Volunteer","Ethnic & Cultural","Health","History","Home & Garden","Libraries","Parades","Pets","Religion","Science","Talks & Lectures","Workshops & Classes","~Other"],"Food & Dining":["Farmers' Markets","Wine","~Other"],"Performing Arts":["Ballet","Cabaret & Review","Comedy","Literary Arts","Musicals","Opera","Poetry","Puppetry","Street Performance","Symphony","Theater","~Other"],"Other":[],"Fairs & Festivals":[],"Arts & Crafts":["Bazaar","Ceramics","Knitting","Quilting","~Other"],"Visual Arts":["Animation","Film","Galleries","Museums","Painting","Photography"],"Music":["Alternative","Blues","Classical","Country","Folk","Gospel","Jazz","Pop","R&B","Rock","Techno & Dance","World Music","~Other"],"Business & Tech":["Cars","Conferences & Trade Shows","Gaming & Technology","Real Estate","~Other"]},"category_3":{"Sports & Outdoors":["Amateur","Auto Racing","Aviation","Baseball","Basketball","Boating","Camping","Cycling","Football","Golf","Hiking","Hockey","Nature","Running","Soccer","Surf & Beach","Swimming","Tennis","Track & Field","Volleyball","Wrestling","Yoga","~Other"],"Shopping":["Fashion","Retail","~Other"],"Dance":["Ballet","Ballroom","Salsa","Swing","Tango","~Other"],"Community":["Activism","Antiques & Collectibles","Charity & Volunteer","Ethnic & Cultural","Health","History","Home & Garden","Libraries","Parades","Pets","Religion","Science","Talks & Lectures","Workshops & Classes","~Other"],"Food & Dining":["Farmers' Markets","Wine","~Other"],"Performing Arts":["Ballet","Cabaret & Review","Comedy","Literary Arts","Musicals","Opera","Poetry","Puppetry","Street Performance","Symphony","Theater","~Other"],"Other":[],"Fairs & Festivals":[],"Arts & Crafts":["Bazaar","Ceramics","Knitting","Quilting","~Other"],"Visual Arts":["Animation","Film","Galleries","Museums","Painting","Photography"],"Music":["Alternative","Blues","Classical","Country","Folk","Gospel","Jazz","Pop","R&B","Rock","Techno & Dance","World Music","~Other"],"Business & Tech":["Cars","Conferences & Trade Shows","Gaming & Technology","Real Estate","~Other"]}}, {'category_2': 'Category 2 <i>(Optional)</i>'}, ['category_1'])
+	neat.to_html()
+	$('form').addEvent('submit', function(){
+	  return neat.validate();
+	})
+</script>
+</body>
+</html>

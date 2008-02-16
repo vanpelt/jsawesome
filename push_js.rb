@@ -9,6 +9,6 @@ if compress
 else
   puts "Pushing non compressed"
 end
-scp = "scp js/#{ARGV[0]} sh1.doloreslabs.com:/var/www/assets"
+scp = "scp js/#{ARGV[0]} sh2.doloreslabs.com:/var/www/assets"
 puts `#{scp}`
 `rm js/#{ARGV[0]}`
