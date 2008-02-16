@@ -255,14 +255,12 @@ JSAwesome = new Class({
             var klass = classes.concat([level]).join('_')
             var it = e.get('value')
             //Dispose namespaced in a wrapper
-            console.log('#'+this.name+' .'+classes.join('_'))
             if(level < 3)
               $E('#'+this.name+' .'+classes.join('_')).getElements('.custom, .sub').dispose()
             //Add a custom input...
             var child = false
             if(it.test(/^~/))
               child = [this._custom(name, klass+' sub')]
-          console.log('Looking for '+klass+' :: '+it)
             if(this.nested[klass])
               child = this.nested[klass][it]
             if(!child) return
