@@ -31,7 +31,7 @@ JSAwesome = new Class({
 	      n.push(new Element('br', {style:'clear:left'}))
 	    } else
 	      n.push(this._process(p[1],p[0]))
-	    m.push(new Element('div', {'class':'error '+p[0]}).adopt(n))
+	    m.push(new Element('div', {'class':'error '+($type(p[0]) == "string" ? p[0].replace(/^[*~^#]/,'') : "")}).adopt(n))
 	    this.level = 0
 	  }, this);
 	 return $(this.name).adopt(m)
@@ -47,7 +47,7 @@ JSAwesome = new Class({
 	      newname = null
 	  }
 	  if(!$defined(newname))
-	    newname = name.replace(/^[_#*^]/,'').replace(/_/g,' ').capitalize()
+	    newname = name.replace(/^[_#*^]/,'').replace(/_/g,' ').replace(/^\w/, function(m){return m.toUpperCase()})
 	  return ($type(wafor) == "element" ? wafor.set('html', newname) : new Element('label', {'for':wafor, 'html':newname}))
 	},
 	validate: function(e) {
@@ -255,8 +255,11 @@ JSAwesome = new Class({
             var klass = classes.concat([level]).join('_')
             var it = e.get('value')
             //Dispose namespaced in a wrapper
-            if(level < 3)
-              $E('#'+this.name+' .'+classes.join('_')).getElements('.custom, .sub').dispose()
+            //This is wrong in so many ways
+            if(classes.getLast().test(/^0/)) classes.pop()
+            var wrapper = $E('#'+this.name+' .'+classes.join('_'))
+            if(wrapper)
+              wrapper.getElements('.custom, .sub').dispose()
             //Add a custom input...
             var child = false
             if(it.test(/^~/))
