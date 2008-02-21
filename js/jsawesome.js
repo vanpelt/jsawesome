@@ -50,9 +50,16 @@ JSAwesome = new Class({
 	    newname = name.replace(/^[_#*^]/,'').replace(/_/g,' ').replace(/^\w/, function(m){return m.toUpperCase()})
 	  return ($type(wafor) == "element" ? wafor.set('html', newname) : new Element('label', {'for':wafor, 'html':newname}))
 	},
+	addValidation: function(){
+	  this.validater = this.validate.bind(this)
+	  $(this.name).getParent('form').addEvent('submit', this.validater)
+	},
+	stopValidation: function(){
+	  $(this.name).getParent('form').removeEvent('submit', this.validater)
+	},
 	validate: function(e) {
 	  return this.validations.every(function(r){
-	    var checking = $(this.name).getElement('.'+r.replace(/^[_#~*]/,''))
+	    var checking = $(this.name).getElement('div .'+r.replace(/^[_#~*]/,''))
 	    var error = checking.getParent('.error')
 	    var invalid = this._check(checking)
 	    if(invalid) {
