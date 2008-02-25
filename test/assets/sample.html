@@ -1,0 +1,61 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+
+	<title>JSAwesome!</title>
+	<script src="js/base.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/jsawesome_new.js" type="text/javascript" charset="utf-8"></script>
+	<style type="text/css" media="screen">
+		label{
+			display:block;
+		}
+		div {
+		  margin-bottom:10px;
+		}
+	</style>
+</head>
+
+<body>
+	<form method="post" id="form" action="http://www.doloreslabs.com">
+		<div id="test">
+		</div>
+		<input type="submit"/>
+	</form>
+<script type="text/javascript" charset="utf-8">
+  var json = [
+	  ['drop', ['~single', 'dude|~custom']],
+	  [['text',''], ['more_text','Oh yeah'], ['cool','Booyah']],
+	  ['text_again',''],
+	  ['#textarea','Default text'],
+	  ['_hidden','invisible'],
+	  ['*radios', ['so|nice', 'many', 'radio|yeah', 'boxes']],
+	  [['^real_cool', true], '^not'],
+	  ['^choices', ['Choice 1|one', 'Choice 2|two', ['Choice 3|three', true]]],
+	  ['sub_cats', 
+	    {'rad': ['cool', 'neat'], 
+	     'awesome':
+	       {'crazy': ['Indeed|~shit', 'man'],
+	        'way': ['oh', 'yeah']}
+	    }],
+	  ['sub_cats2', 8]
+	  ]
+	var labels = {
+    cool:'Um Thats right',
+    '~':'Suggest something...',
+    '{}':['Something', 'Something else'],
+    'not':'Not Cool',
+    'choices':'Many Choices',
+    'real_cool':{label:'Holy Shit', required:true},
+    'radios':{required:true, label:'So many choices'},
+    sub_cats:{required:true, label:"Sub Categories"},
+    textarea:{validation:["cool", "Text area must contain cool"]}
+  }
+	var js = new JSAwesome('test', json, labels)
+	js.to_html()
+	js.addValidation()
+</script>
+</body>
+</html>

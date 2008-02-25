@@ -1,0 +1,14 @@
+#!/usr/bin/env ruby
+ARGV[0] ||= 'jsawesome.js'
+compress = ARGV[1] || false
+`cat js/base.js js/jsawesome.js >> js/#{ARGV[0]}.local`
+if compress
+  puts "Compressing..."
+  `yuicompressor js/#{ARGV[0]}`
+  `mv js/#{ARGV[0].sub('.js','-min.js')} js/#{ARGV[0]}.local`
+else
+  puts "Pushing non compressed"
+end
+scp = "scp js/#{ARGV[0]}.local deployer@sh2.doloreslabs.com:/var/www/assets/#{ARGV[0]}"
+puts `#{scp}`
+`rm js/#{ARGV[0]}.local`
