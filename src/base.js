@@ -28,7 +28,7 @@ JSAwesome = new Class({
 	      n.push(new Element('br', {style:'clear:left'}))
 	    } else
 	      n.push(this._process(p[1],p[0]))
-	    var klass = $type(p[0]) == "string" ? p[0].replace(/^[_#*^]/,'') : "row_"+i+1
+	    var klass = $type(p[0]) == "string" ? p[0].replace(/^[_#*^]/,'') : "row_"+(i+1)
 	    m.push(new Element('div', {'class':'error '+klass}).adopt(n))
 	    this.level = 0
 	  }, this);
@@ -68,8 +68,8 @@ JSAwesome = new Class({
 	      this.delay = (delay -= 20)
 	      invalid[1].set('style', 'background:#d88b7e')
 	      if(error.getChildren().getLast().innerHTML != invalid[0]) {
-	        var mes = new Element('div', {
-	          style: 'color:red',
+	        var mes = new Element('span', {
+	          style: 'color:red;display:block',
 	          html:invalid[0]
 	        }).inject(error)
 	      }
@@ -116,7 +116,7 @@ JSAwesome = new Class({
         return ["You must check this box", element, 'click']
     } else if(label['required'] && element.get('value') === "")
       return ["This is a required field", element]
-    else if(label['validation'] && element.get('value') !== "") {
+    else if(label['validation']) {
       var args = $splat(label['validation'][0])
       var regex = new RegExp(args[0], args[1])
       return (regex.test(element.get('value')) ? false : [label['validation'][1], element])

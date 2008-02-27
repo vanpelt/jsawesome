@@ -1,0 +1,125 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>JavaScript unit test file</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <script src="../assets/jsunittest.js" type="text/javascript"></script>
+  
+  <script src="../../dist/jsawesome.js" type="text/javascript"></script>
+  
+  <script src="../assets/test_helper.js" type="text/javascript"></script>
+  
+  
+  <link rel="stylesheet" href="../assets/unittest.css" type="text/css" />
+  <style type="text/css" media="screen">
+		label{
+			display:block;
+		}
+		div.error {
+		  margin-top:10px;
+		}
+	</style>
+</head>
+<body>
+
+<div id="content">
+
+  <div id="header">
+    <h1>JSAwesome select functional tests</h1>
+    <p>
+      Functional tests for demonstrating single and nested select menus.
+    </p>
+  </div>
+  <pre>[["cool","nice"]]</pre>
+
+  <!-- Log output (one per Runner, via {testLog: "testlog"} option)-->
+  <h2>Single selects</h2>
+  <div id="singlelog"></div>
+  <div id="single"></div>
+  
+  
+  <h2>Nested selects</h2>
+  <div id="nestedlog"></div>
+  <div id="nested"></div>
+  
+  <!-- Put sample/test html here -->
+</div>
+
+<script type="text/javascript">
+// <![CDATA[
+
+  new Test.Unit.Runner({
+    // replace this with your real tests
+    setup: function() {
+      $('single').grab(new Element('div', {
+        id:this.name
+      }).grab(new Element('h3', {
+        html:this.name.sexify()
+      })))
+    },
+    
+    teardown: function() {
+      $('single').adopt([new Element('pre', {
+        text:tb.json.toJSON()
+      }), new Element('pre', {
+        text:$H(tb.labels).toJSON()
+      })])
+    },
+    
+    testSimpleSelect: function() { with(this) {
+      tb = new JSAwesome(name, [['select',['1','2','3','4']]])
+      tb.to_html()
+      var select = $N('select.select')[0]
+      assertEqual(name+"_select", select.name)
+      assertEqual(5,select.getElements('option').length)
+      assertEqual("", select.value)
+      var label = $N('label')
+      assertEqual("Select", label.get("html"))
+    }},
+    
+    testRequiredSelectWithCustomLabel: function() { with(this){
+      tb = new JSAwesome(name, [['select',['1','2','3','4']]],{
+        select:{label:'Cool select', required:true}
+      })
+      tb.to_html()
+      var select = $N('select.select')[0]
+      assertEqual(name+"_select", select.name)
+      assertEqual(5,select.getElements('option').length)
+      assertEqual("", select.value)
+      var label = $N('label')
+      assertEqual("Cool select", label.get("html"))
+      assert(!tb.validate())
+      var warning = $N('span')[0]
+      assertEqual("This is a required field", warning.get("html"))
+    }}
+      
+  }, {testLog: "singlelog"}); 
+  
+  new Test.Unit.Runner({
+    // replace this with your real tests
+    setup: function() {
+      $('multi').grab(new Element('div', {
+        id:this.name
+      }).grab(new Element('h3', {
+        html:this.name.sexify()
+      })))
+    },
+    
+    teardown: function() {
+      //$('basic').set("html", "")
+    },
+    
+    testNestedSelect: function() { with(this) {
+      assert(true)
+    }}
+  }, {testLog: "nestedlog"}); 
+  // For each Test.UnitRunner instance, specify the element id where results will be
+  // published; e.g. <div id="testlog"/> above.
+  // That is, you can have multiple "new Test.Unit.Runner() { ... }" on this page, just
+  // create more <div id="testlog2"></div> etc, and pass the element id to the hash above:
+  // e.g. {testLog: "testlog2"}
+// ]]>
+</script>
+</body>
+</html>

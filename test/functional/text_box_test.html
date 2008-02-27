@@ -1,0 +1,204 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+        "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>JavaScript unit test file</title>
+  <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+  <script src="../assets/jsunittest.js" type="text/javascript"></script>
+  
+  <script src="../../dist/jsawesome.js" type="text/javascript"></script>
+  
+  <script src="../assets/test_helper.js" type="text/javascript"></script>
+  
+  <link rel="stylesheet" href="../assets/unittest.css" type="text/css" />
+  <style type="text/css" media="screen">
+		label{
+			display:block;
+		}
+		div.error {
+		  margin-top:10px;
+		}
+	</style>
+</head>
+<body>
+
+<div id="content">
+
+  <div id="header">
+    <h1>JSAwesome text box functional tests</h1>
+    <p>
+      Functional tests for demonstrating basic text box usage.
+    </p>
+  </div>
+  <!-- Log output (one per Runner, via {testLog: "testlog"} option)-->
+  <h2>Single text boxes</h2>
+  <div id="singlelog"></div>
+  <div id="single"></div>
+  
+  
+  <h2>Multiple text boxes</h2>
+  <div id="multilog"></div>
+  <div id="multi"></div>
+  
+  <!-- Put sample/test html here -->
+</div>
+
+<script type="text/javascript">
+// <![CDATA[
+
+  new Test.Unit.Runner({
+    // replace this with your real tests
+    setup: function() {
+      $('single').grab(new Element('div', {
+        id:this.name
+      }).grab(new Element('h3', {
+        html:this.name.sexify()
+      })))
+    },
+    
+    teardown: function() {
+      //$('basic').set("html", "")
+    },
+    
+    testSingleEmptyTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [['text_box','']])
+      tb.to_html()
+      var box = $N('input.text_box')[0]
+      assertEqual(name+"_text_box", box.name)
+      assertEqual("", box.value)
+      var label = $N('label')[0]
+      assertEqual("Text Box", label.get("html"))
+    }},
+    
+    testSingleCustomTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [['text_box','Default value']], {text_box:"Custom"})
+      tb.to_html()
+      var box = $N('input.text_box')[0]
+      assertEqual(name+"_text_box", box.name)
+      assertEqual("Default value", box.value)
+      var label = $N('label')[0]
+      assertEqual("Custom", label.get("html"))
+    }},
+    
+    testSingleValidatedTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [['text_box', 'invalid']], {text_box: {validation:["^valid", "Is invalid"]}})
+      tb.to_html()
+      var box = $N('input.text_box')[0]
+      assertEqual(name+"_text_box", box.name)
+      assertEqual("invalid", box.value)
+      var label = $N('label')[0]
+      assertEqual("Text Box", label.get("html"))
+      assert(!tb.validate())
+      var warning = $E('div.error span')
+      assertEqual("Is invalid", warning.get("html"))
+    }},
+    
+    testSingleRequiredTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [['text_box', null]], {text_box: {required:true}})
+      tb.to_html()
+      var box = $N('input.text_box')[0]
+      assertEqual(name+"_text_box", box.name)
+      assertEqual("", box.value)
+      assert(!tb.validate())
+      var warning = $N('div.error span')[0]
+      assertEqual("This is a required field", warning.get("html"))
+    }}
+      
+  }, {testLog: "singlelog"}); 
+  
+  new Test.Unit.Runner({
+    // replace this with your real tests
+    setup: function() {
+      $('multi').grab(new Element('div', {
+        id:this.name
+      }).grab(new Element('h3', {
+        html:this.name.sexify()
+      })))
+    },
+    
+    teardown: function() {
+      //$('basic').set("html", "")
+    },
+    
+    testMultipleEmptyTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [[['text_box1',''], ['text_box2', '']]])
+      tb.to_html()
+      var boxes = $$('div.row_1 input')
+      assertEqual(2, boxes.length)
+      assertEqual(name+"_text_box1", boxes[0].name)
+      assertEqual(name+"_text_box2", boxes[1].name)
+      assertEqual("", boxes[0].value)
+      assertEqual("", boxes[1].value)
+      assertEqual("Text Box1", $E('label[for='+name+'_text_box1]').get("html"))
+      assertEqual("Text Box2", $E('label[for='+name+'_text_box2]').get("html"))
+    }},
+    
+    testMultipleCustomTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [[['text_box1','default'], ['text_box2', '']]], {text_box2:"Custom label"})
+      tb.to_html()
+      var boxes = $N('input')
+      var labels = $N('label')
+      assertEqual(2, boxes.length)
+      assertEqual(2, labels.length)
+      assertEqual(name+"_text_box1", boxes[0].name)      
+      assertEqual("default", boxes[0].value)
+      assertEqual("", boxes[1].value)
+      assertEqual("Text Box1", labels[0].get("html"))
+      assertEqual("Custom label", labels[1].get("html"))
+    }},
+    
+    testMultipleValidatedTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [
+        [['text_box1','default'], ['text_box2', '']], 
+        ['text_box3','']], {
+          text_box2: {label:"custom", validation:[".{10}","Must be 10 chars long"]},
+          text_box1: {vaidation:[".{7}","Must be 7 chars long"]}
+      })
+      tb.to_html()
+      var boxes = $N('input')
+      var labels = $N('label')
+      assertEqual(3, boxes.length)
+      assertEqual(3, labels.length)
+      assertEqual(3, boxes.getElements('div').length)
+      assertEqual("", boxes[1].value)
+      assert(!tb.validate())
+      var warning = $N('div.error span').getLast()
+      assertEqual("Must be 10 chars long", warning.get("html"))
+      assertEqual("custom", labels[1].get("html"))
+    }},
+    
+    testMultipleRequiredTextBox: function() { with(this) {
+      var tb = new JSAwesome(name, [
+        [['text_box1','default'], ['text_box2', '']], 
+        [['text_box3',''],['text_box4',''],['text_box5', '']]], {
+          text_box2: {label:"custom", required:true},
+          text_box1: {required:true},
+          text_box5: {required:true}
+      })
+      tb.to_html()
+      var boxes = $N('input')
+      var labels = $N('label')
+      assertEqual(5, boxes.length)
+      assertEqual(5, labels.length)
+      assertEqual(5, boxes.getElements('div').length)
+      assertEqual("", boxes[1].value)
+      assert(!tb.validate())
+      var warnings = $N('div.error span')
+      assertEqual("This is a required field", warnings.getLast().get("html"))
+      assertEqual("This is a required field", warnings[0].get("html"))
+      assertEqual("custom", labels[1].get("html"))
+      assertMatch(/background/, boxes[1].get('style'))
+      assertNoMatch(/background/, boxes[0].get('style'))
+      assertMatch(/background/, boxes[4].get('style'))
+    }},
+  
+  }, {testLog: "multilog"}); 
+  // For each Test.UnitRunner instance, specify the element id where results will be
+  // published; e.g. <div id="testlog"/> above.
+  // That is, you can have multiple "new Test.Unit.Runner() { ... }" on this page, just
+  // create more <div id="testlog2"></div> etc, and pass the element id to the hash above:
+  // e.g. {testLog: "testlog2"}
+// ]]>
+</script>
+</body>
+</html>
