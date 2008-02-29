@@ -30,7 +30,6 @@ JSAwesome = new Class({
 	      n.push(this._process(p[1],p[0]))
 	    var klass = $type(p[0]) == "string" ? p[0].replace(/^[_#*^]/,'') : "row_"+(i+1)
 	    m.push(new Element('div', {'class':'error '+klass}).adopt(n))
-	    this.level = 0
 	  }, this);
 	  var adopted = $(this.name).adopt(m)
 	  adopted.getElements('select').each(function(e){
@@ -134,28 +133,30 @@ JSAwesome = new Class({
 	            return this._process(c[0], name, c.getLast());
 	          }, this))
 	        );
-	      } else {
+	      } else {          
           //Sort the options, and make the other / custom field go to the end...
           cur = cur.sort()
           var other = false
-          cur.some(function(a){ return a.test(/~/) ? a : other})
+          cur.some(function(a){ return a.test(/~/) ? other = a : other})
           if(other)
             cur.remove(other).push(other)
           //Add the default header
-	        cur = [parent ? select_default[1] : select_default[0]].concat(cur)
+          if(cur.length > 1)
+	          cur = [parent ? select_default[1] : select_default[0]].concat(cur)
 	        var level = parent ? parent.getParent().$attributes.level : null
 	        var klass = [name,level].clean().join("_")
-	        if(parent) {
-	          parent.$attributes.extra = this._select(name, cur, klass)
+	        if(parent && cur.length > 0) {
+	          parent.$attributes.extra = this._select(name, cur, klass, level)
 	          return null
-	        } else
-	          return [this.label(name, this.name+'_'+name),this._select(name, cur, klass)]
+	        } else if(cur.length > 0)
+	          return [this.label(name, this.name+'_'+name),this._select(name, cur, klass, level)]
+	        else return null
 	      }
 	    case 'object':
 	      cur = $H(cur)
 	      var t = [this._process(cur.getKeys(), name, parent)]
 	      var root = parent ? parent.$attributes.extra : t[0][1]
-	      t.push(this._process([], name, root.getElement('option')))
+	      t.push(this._process([select_default[1]], name, root.getElement('option')))
 	      return t.concat(cur.getValues().map(function(v){
 	        var val = cur.keyOf(v).split('|').getLast()
 	        var parent = root.getElement('option[value='+val+']')
@@ -226,8 +227,8 @@ JSAwesome = new Class({
       }
     })
 	},
-	_select: function(name, options, klass) {
-	  var level = klass.split("_").pop().toInt() || 0
+	_select: function(name, options, klass, level) {
+	  var level = level || 0
 	  var select = new Element("select", {
       name: this.name + '_' + (level > 0 ? name + '_' + level : name),
       'class': klass,
@@ -235,12 +236,12 @@ JSAwesome = new Class({
         change: function(event){
           var e = event.target
           var option = e[e.selectedIndex]
-          var level = e.$attributes.level
           var klass = e.get('class').split(' ')[0]
-          var next = klass.test(/\d+$/) ? klass.replace(/\d+$/, level) : klass+'_'+level 
+          var verify = new RegExp("("+name+')_\\d+$')
+          var next = klass.test(verify) ? klass.replace(verify, '$1_'+(level+1)) : klass+'_'+(level+1) 
           //Dispose namespaced in a wrapper
-          $E('#'+this.name+' .'+klass.replace(/_\d+$/,'')).getElements('.custom, select').each(function(i){
-            if(i.hasClass('custom') || i.$attributes.level > level)
+          $E('#'+this.name+' .'+klass.replace(verify,'$1')).getElements('.custom, select').each(function(i){
+            if(i.hasClass('custom') || i.$attributes.level > level+1)
               i.dispose()
           })
           if(!option.$attributes.extra) return
