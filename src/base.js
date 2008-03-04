@@ -9,6 +9,7 @@ JSAwesome = new Class({
 	  this.name = name
 		this.json = json
 		this.labels = labels || {}
+		this.validatables = []
 		this.validations = $H(labels).getKeys().filter(function(f){
 		  return labels[f]['required'] || labels[f]['validation']
 		})
@@ -23,12 +24,17 @@ JSAwesome = new Class({
 	    if($type(p[0])=="array"){
 	      n.push(p.map(function(r){
 	        r = $splat(r)
+	        n.push(this.extra('before', r[0]))
 	        return new Element('div', {style:'float:left;margin-right:5px'}).adopt(this._process(r[1],r[0]))
 	      }, this))
 	      n.push(new Element('br', {style:'clear:left'}))
-	    } else
+	      n.push(this.extra('after', $splat(p.getLast())[0]))
+	    } else {
+	      n.push(this.extra('before', p[0]))
 	      n.push(this._process(p[1],p[0]))
-	    var klass = $type(p[0]) == "string" ? p[0].replace(/^[_#*^]/,'') : "row_"+(i+1)
+	      n.push(this.extra('after', p[0]))
+	    }
+	    var klass = $type(p[0]) == "string" ? this._clean(p[0]) : "row_"+(i+1)
 	    m.push(new Element('div', {'class':'error '+klass}).adopt(n))
 	  }, this);
 	  var adopted = $(this.name).adopt(m)
@@ -36,6 +42,9 @@ JSAwesome = new Class({
 	    e.fireEvent('change', {target:e})
 	  })
 	 return adopted
+	},
+	extra: function(where, what) {
+	  return this.labels[where+'_'+what] ? new Element('div', {html: this.labels[where+'_'+what]}) : null
 	},
 	label: function(name, wafor) {
 	  var newname = null
@@ -48,19 +57,38 @@ JSAwesome = new Class({
 	      newname = null
 	  }
 	  if(!$defined(newname))
-	    newname = name.replace(/^[_#*^]/,'').replace(/_/g,' ').capitalize()
-	  return ($type(wafor) == "element" ? wafor.set('html', newname) : new Element('label', {'for':wafor, 'html':newname}))
+	    newname = this._clean(name).replace(/_/g,' ').capitalize()
+	  return ($type(wafor) == "element" ? wafor.set('html', newname) : new Element('label', {'for':this._id(wafor), 'html':newname}))
 	},
-	addValidation: function(){
-	  this.validater = this.validate.bind(this)
-	  $(this.name).getParent('form').addEvent('submit', this.validater)
+	addValidation: function(wha){
+	  if(wha) {
+	    this.validatables.each(function(v){
+	      //There is an undefined element in IE for some sick reason
+	      if(v && v.test(wha)) {
+	        this.validatables.remove(v)
+	        this.validations.push(v)
+	      }
+	    }, this)
+	  } else {
+	    this.validater = this.validate.bind(this)
+	    $(this.name).getParent('form').addEvent('submit', this.validater)
+	  }
 	},
-	stopValidation: function(){
-	  $(this.name).getParent('form').removeEvent('submit', this.validater)
+	stopValidation: function(wha){
+	  if(wha) {
+	    this.validations.each(function(v){
+	      //There is an undefined element in IE for some sick reason
+	      if(v && v.test(wha)) {
+	        this.validations.remove(v)
+	        this.validatables.push(v)
+	      }
+	    }, this)
+	  } else
+	    $(this.name).getParent('form').removeEvent('submit', this.validater)
 	},
 	validate: function(e) {
 	  return this.validations.filter(function(r){
-	    var checking = $(this.name).getElement('div .'+r.replace(/^[_#~*^]/,''))
+	    var checking = $(this.name).getElement('div .'+this._clean(r))
 	    var error = checking.getParent('.error')
 	    var invalid = this._check(checking)
 	    if(invalid) {
@@ -128,7 +156,7 @@ JSAwesome = new Class({
 	    case 'array':
 	      if(name.test(/^[*^]/)) {
 	        return new Element('fieldset').adopt(
-	          [this.label(name.replace(/^[*^]/,''), new Element('legend'))].concat(cur.map(function(c){
+	          [this.label(this._clean(name), new Element('legend'))].concat(cur.map(function(c){
 	            c = $splat(c)
 	            return this._process(c[0], name, c.getLast());
 	          }, this))
@@ -149,7 +177,7 @@ JSAwesome = new Class({
 	          parent.$attributes.extra = this._select(name, cur, klass, level)
 	          return null
 	        } else if(cur.length > 0)
-	          return [this.label(name, this.name+'_'+name),this._select(name, cur, klass, level)]
+	          return [this.label(name, name),this._select(name, cur, klass, level)]
 	        else return null
 	      }
 	    case 'object':
@@ -169,43 +197,53 @@ JSAwesome = new Class({
 	        //There should be a better way to do this
 	        var reversed = [].concat(select_default).reverse()
 	        var val = cur.split('|').getLast().replace(new RegExp(reversed.join("|")),'')
-	        cur = cur.split('|')[0].replace(/^[~*]/,'')
+	        cur = this._clean(cur.split('|')[0])
 	      }
 	      if($type(parent) == "element") {
 	        //Allows for custom values
-	        e = new Element('option', {html: cur, value: val.replace(/^~/,'')})
+	        e = new Element('option', {html: cur, value: this._clean(val)})
 	        if(val.test(/^~/))
-            e.$attributes.extra = this._custom(parent.get('name')+'_other', parent.get('name'))
+            e.$attributes.extra = this._custom(parent.get('name').replace(/(.+)\[(.+)\]/, '$1[$2_other]'), parent.get('class'))
 	      } else {
 	        if(name.test(/^#/)) {
 	          e = new Element('textarea', {
-	            name: this.name+'_'+name.substring(1), 
-	            'class':name.substring(1), 
+	            name: this._name(name),
+	            id: this._id(name),
+	            'class':this._clean(name), 
 	            html: cur})
 	        } else if(name.test(/^_/)) {
-	          e = this._input('hidden', name.substring(1), cur)
+	          e = this._input('hidden', name, cur)
 	        } else if(name.test(/^\*/)) {
-            e = this.label(cur, this.name+'_'+name.substring(1)).grab(
-              this._input('radio', name.substring(1), val), 'top')
+            e = this.label(cur, name).grab(
+              this._input('radio', name, val), 'top')
           } else if(name.test(/^\^/)) {
             //handles both grouped checkboxes and individual ones... Kindof a Mind FFFF
             if($defined(parent))
               var tname = cur
             else {
               parent = cur
-              var tname = name.substring(1)
+              var tname = name
             }
-            e = this.label(tname, this.name+'_'+(val || tname)).grab(
+            e = this.label(tname, val || tname).grab(
               this._input('checkbox', (val || tname), parent === true), 'top')
 	        } else e = this._input('text', name, cur)
 	        if(!name.test(/^[_*^]/))
-	          e = [this.label(name, e.name), e]
+	          e = [this.label(name, name), e]
 	      }
 	      return e
 	  }
 	},
+	_clean: function(name) {
+	  return name.replace(/^[_#*^~]/,'')
+	},
+	_name: function(name) {
+	  return this.name+'['+this._clean(name)+']'
+	},
+	_id: function(name) {
+	  return this.name+'_'+this._clean(name)
+	},
 	_input: function(type, name, val) {
-	  e = new Element('input', {type: type, 'class': name, name: this.name+'_'+name})
+	  e = new Element('input', {type: type, 'class': this._clean(name), name: this._name(name), id: this._id(name)})
     if(type == "checkbox")
       e.set('checked', val ? "checked" : "")
     else
@@ -229,8 +267,10 @@ JSAwesome = new Class({
 	},
 	_select: function(name, options, klass, level) {
 	  var level = level || 0
+	  var leveled = level > 0 ? name + '_' + level : name
 	  var select = new Element("select", {
-      name: this.name + '_' + (level > 0 ? name + '_' + level : name),
+      name: this._name(leveled),
+      id: this._id(leveled),
       'class': klass,
       events: {
         change: function(event){

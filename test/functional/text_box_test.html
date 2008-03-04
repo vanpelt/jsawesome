@@ -64,7 +64,7 @@
       var tb = new JSAwesome(name, [['text_box','']])
       tb.to_html()
       var box = $N('input.text_box')[0]
-      assertEqual(name+"_text_box", box.name)
+      assertEqual(name+"[text_box]", box.name)
       assertEqual("", box.value)
       var label = $N('label')[0]
       assertEqual("Text Box", label.get("html"))
@@ -74,7 +74,7 @@
       var tb = new JSAwesome(name, [['text_box','Default value']], {text_box:"Custom"})
       tb.to_html()
       var box = $N('input.text_box')[0]
-      assertEqual(name+"_text_box", box.name)
+      assertEqual(name+"[text_box]", box.name)
       assertEqual("Default value", box.value)
       var label = $N('label')[0]
       assertEqual("Custom", label.get("html"))
@@ -84,7 +84,7 @@
       var tb = new JSAwesome(name, [['text_box', 'invalid']], {text_box: {validation:["^valid", "Is invalid"]}})
       tb.to_html()
       var box = $N('input.text_box')[0]
-      assertEqual(name+"_text_box", box.name)
+      assertEqual(name+"[text_box]", box.name)
       assertEqual("invalid", box.value)
       var label = $N('label')[0]
       assertEqual("Text Box", label.get("html"))
@@ -97,7 +97,7 @@
       var tb = new JSAwesome(name, [['text_box', null]], {text_box: {required:true}})
       tb.to_html()
       var box = $N('input.text_box')[0]
-      assertEqual(name+"_text_box", box.name)
+      assertEqual(name+"[text_box]", box.name)
       assertEqual("", box.value)
       assert(!tb.validate())
       var warning = $N('div.error span')[0]
@@ -125,8 +125,8 @@
       tb.to_html()
       var boxes = $$('div.row_1 input')
       assertEqual(2, boxes.length)
-      assertEqual(name+"_text_box1", boxes[0].name)
-      assertEqual(name+"_text_box2", boxes[1].name)
+      assertEqual(name+"[text_box1]", boxes[0].name)
+      assertEqual(name+"[text_box2]", boxes[1].name)
       assertEqual("", boxes[0].value)
       assertEqual("", boxes[1].value)
       assertEqual("Text Box1", $E('label[for='+name+'_text_box1]').get("html"))
@@ -140,7 +140,7 @@
       var labels = $N('label')
       assertEqual(2, boxes.length)
       assertEqual(2, labels.length)
-      assertEqual(name+"_text_box1", boxes[0].name)      
+      assertEqual(name+"[text_box1]", boxes[0].name)      
       assertEqual("default", boxes[0].value)
       assertEqual("", boxes[1].value)
       assertEqual("Text Box1", labels[0].get("html"))

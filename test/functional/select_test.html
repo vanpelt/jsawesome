@@ -71,7 +71,7 @@
       tb = new JSAwesome(name, [['select',['1','2','3','4']]])
       tb.to_html()
       var select = $N('select.select')[0]
-      assertEqual(name+"_select", select.name)
+      assertEqual(name+"[select]", select.name)
       assertEqual(5,select.getElements('option').length)
       assertEqual("", select.value)
       var label = $N('label')
@@ -84,7 +84,7 @@
       })
       tb.to_html()
       var select = $N('select.select')[0]
-      assertEqual(name+"_select", select.name)
+      assertEqual(name+"[select]", select.name)
       assertEqual(5,select.getElements('option').length)
       assertEqual("", select.value)
       var label = $N('label')
