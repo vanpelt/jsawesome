@@ -37,7 +37,7 @@ JSAwesome = new Class({
 	    var klass = $type(p[0]) == "string" ? this._clean(p[0]) : "row_"+(i+1)
 	    m.push(new Element('div', {'class':'error '+klass}).adopt(n))
 	  }, this);
-	  var adopted = $(this.name).adopt(m)
+	  var adopted = $(this.name).adopt(m.concat($(this.name).getChildren().dispose()))
 	  adopted.getElements('select').each(function(e){
 	    e.fireEvent('change', {target:e})
 	  })
@@ -48,6 +48,7 @@ JSAwesome = new Class({
 	},
 	label: function(name, wafor) {
 	  var newname = null
+	  name = this._clean(name)
 	  if($defined(this.labels[name])) {
 	    if($defined(this.labels[name]['label']))
 	      newname = this.labels[name]['label']
@@ -57,7 +58,7 @@ JSAwesome = new Class({
 	      newname = null
 	  }
 	  if(!$defined(newname))
-	    newname = this._clean(name).replace(/_/g,' ').capitalize()
+	    newname = name.replace(/_/g,' ').capitalize()
 	  return ($type(wafor) == "element" ? wafor.set('html', newname) : new Element('label', {'for':this._id(wafor), 'html':newname}))
 	},
 	addValidation: function(wha){
@@ -162,12 +163,14 @@ JSAwesome = new Class({
 	          }, this))
 	        );
 	      } else {          
-          //Sort the options, and make the other / custom field go to the end...
-          cur = cur.sort()
-          var other = false
-          cur.some(function(a){ return a.test(/~/) ? other = a : other})
-          if(other)
-            cur.remove(other).push(other)
+          //Sort the options, and make the other / custom field go to the end... if it's a nested select
+          if(parent) {
+            cur = cur.sort()
+            var other = false
+            cur.some(function(a){ return a.test(/~/) ? other = a : other})
+            if(other)
+              cur.remove(other).push(other)
+          }
           //Add the default header
           if(cur.length > 1)
 	          cur = [parent ? select_default[1] : select_default[0]].concat(cur)
@@ -227,14 +230,25 @@ JSAwesome = new Class({
             e = this.label(tname, val || tname).grab(
               this._input('checkbox', (val || tname), parent === true), 'top')
 	        } else e = this._input('text', name, cur)
+	        //For duplication...
+	        if(name.test(/^.?\+/))
+	          e = [e, new Element('a', {html:' +', href:'#', events:{click:this.duplicate}, 'class':'plus'})]
 	        if(!name.test(/^[_*^]/))
 	          e = [this.label(name, name), e]
 	      }
 	      return e
 	  }
 	},
+	duplicate: function(e) {
+	  e.stop()
+	  var orig = e.target.getPrevious()
+	  if(!orig.name.test(/\[\]$/))
+	    orig.name = orig.name+"[]"
+	  orig.clone().inject(orig, 'after')
+	  new Element('br').inject(orig, 'after')
+	},
 	_clean: function(name) {
-	  return name.replace(/^[_#*^~]/,'')
+	  return name.replace(/^[_#*^~]?\+?/,'')
 	},
 	_name: function(name) {
 	  return this.name+'['+this._clean(name)+']'
