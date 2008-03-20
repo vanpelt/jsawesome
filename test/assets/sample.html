@@ -53,9 +53,21 @@
     sub_cats:{required:true, label:"Sub Categories"},
     textarea:{validation:["cool", "Text area must contain cool"]}
   }
-	var js = new JSAwesome('test', json, labels)
-	js.to_html()
-	js.addValidation()
+	var test = new JSAwesome('test', json, labels)
+	test.to_html()
+	test.addValidation()
+	window.addEvent('load', function(){
+    $$('input.not').each(function(i){
+      i.addEvent('click', function(){
+        var id = this.getParent('div.error').getParent().get('id')
+        var awesome = eval(id)
+        if(this.checked)
+           awesome.stopValidation(/radio/)
+        else
+           awesome.addValidation(/radio/)
+      })
+    })
+  })
 </script>
 </body>
 </html>

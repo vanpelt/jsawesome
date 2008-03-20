@@ -257,7 +257,7 @@ JSAwesome = new Class({
 	  return this.name+'_'+this._clean(name)
 	},
 	_input: function(type, name, val) {
-	  e = new Element('input', {type: type, 'class': this._clean(name), name: this._name(name), id: this._id(name)})
+	  e = new Element('input', {type: type, 'class': this._clean(name), name: this._name(name), id: (type =='radio' ? '' : this._id(name))})
     if(type == "checkbox")
       e.set('checked', val ? "checked" : "")
     else
