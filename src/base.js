@@ -260,12 +260,12 @@ JSAwesome = new Class({
 	  return this.name+'_'+this._clean(name)
 	},
 	_input: function(type, name, val) {
-	  e = new Element('input', {type: type, 'class': this._clean(name), name: this._name(name), id: (type =='radio' ? '' : this._id(name))})
-    if(type == "checkbox")
+	  var e = new Element('input', {type: type, 'class': this._clean(name), name: this._name(name), id: (type =='radio' ? '' : this._id(name))})
+    if(type == "checkbox") {
       e.set('checked', val ? "checked" : "")
       e.set('value', 'true')
-      e = [this._input('hidden', name, 'false'), e]
-    else
+      e = new Element('span').adopt([this._input('hidden', name, 'false'), e])
+    } else
       e.set('value', val)
     return e
 	},
