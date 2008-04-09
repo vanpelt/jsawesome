@@ -58,7 +58,7 @@ JSAwesome = new Class({
 	      newname = null
 	  }
 	  if(!$defined(newname))
-	    newname = name.replace(/_/g,' ').capitalize()
+	    newname = this._capitalize(name.replace(/_/g,' '))
 	  return ($type(wafor) == "element" ? wafor.set('html', newname) : new Element('label', {'for':this._id(wafor), 'html':newname}))
 	},
 	addValidation: function(wha){
@@ -247,6 +247,9 @@ JSAwesome = new Class({
 	  orig.clone().inject(orig, 'after')
 	  new Element('br').inject(orig, 'after')
 	},
+	_capitalize: function(string){
+		return string.replace(/^[a-z]/, function(match){ return match.toUpperCase() });
+	},
 	_clean: function(name) {
 	  return name.replace(/^[_#*^~]?\+?/,'')
 	},
@@ -260,6 +263,8 @@ JSAwesome = new Class({
 	  e = new Element('input', {type: type, 'class': this._clean(name), name: this._name(name), id: (type =='radio' ? '' : this._id(name))})
     if(type == "checkbox")
       e.set('checked', val ? "checked" : "")
+      e.set('value', 'true')
+      e = [this._input('hidden', name, 'false'), e]
     else
       e.set('value', val)
     return e

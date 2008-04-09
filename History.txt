@@ -1,3 +1,9 @@
+== 0.1.3 2008-04-09
+* Checkboxes automagically have a hidden field to make sure un-selected ones are sent.  Values are true / false
+
+== 0.1.2 2008-03-21
+* Fixed a bug where radio button groups didn't work in Firefox because of duplicate ids
+
 == 0.1.1 2008-03-13
 * Added a '+' delineator for any field that can be duplicated...
 * Made selects only sort if they are a sub-select
