@@ -264,7 +264,7 @@ JSAwesome = new Class({
     if(type == "checkbox") {
       e.set('checked', val ? "checked" : "")
       e.set('value', 'true')
-      e = new Element('span').adopt([this._input('hidden', name, 'false'), e])
+      e = new Element('span').adopt([e, this._input('hidden', name, 'false')])
     } else
       e.set('value', val)
     return e
