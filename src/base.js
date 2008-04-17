@@ -147,6 +147,8 @@ JSAwesome = new Class({
     else if(label['validation']) {
       var args = $splat(label['validation'][0])
       var regex = new RegExp(args[0], args[1])
+      if(!label['required'] && element.get('value').test(/^\s*$/))
+        return false
       return (regex.test(element.get('value')) ? false : [label['validation'][1], element])
     }
 	},

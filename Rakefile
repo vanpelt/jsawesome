@@ -12,7 +12,7 @@ require 'rake/packagetask'
 
 $:.unshift File.dirname(__FILE__) + "/lib"
 
-APP_VERSION  = '0.1.3'
+APP_VERSION  = '0.1.4'
 APP_NAME     = 'jsawesome'
 APP_FILE_NAME= "#{APP_NAME}.js"
 
