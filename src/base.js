@@ -66,7 +66,7 @@ JSAwesome = new Class({
 	    this.validatables.each(function(v){
 	      //There is an undefined element in IE for some sick reason
 	      if(v && v.test(wha)) {
-	        this.validatables.remove(v)
+	        this.validatables.erase(v)
 	        this.validations.push(v)
 	      }
 	    }, this)
@@ -80,7 +80,7 @@ JSAwesome = new Class({
 	    this.validations.each(function(v){
 	      //There is an undefined element in IE for some sick reason
 	      if(v && v.test(wha)) {
-	        this.validations.remove(v)
+	        this.validations.erase(v)
 	        this.validatables.push(v)
 	      }
 	    }, this)
@@ -171,15 +171,15 @@ JSAwesome = new Class({
             var other = false
             cur.some(function(a){ return a.test(/~/) ? other = a : other})
             if(other)
-              cur.remove(other).push(other)
+              cur.erase(other).push(other)
           }
           //Add the default header
           if(cur.length > 1)
 	          cur = [parent ? select_default[1] : select_default[0]].concat(cur)
-	        var level = parent ? parent.getParent().$attributes.level : null
+	        var level = parent ? parent.getParent().retrieve('level') : null
 	        var klass = [name,level].clean().join("_")
 	        if(parent && cur.length > 0) {
-	          parent.$attributes.extra = this._select(name, cur, klass, level)
+	          parent.store('extra', this._select(name, cur, klass, level))
 	          return null
 	        } else if(cur.length > 0)
 	          return [this.label(name, name),this._select(name, cur, klass, level)]
@@ -188,7 +188,7 @@ JSAwesome = new Class({
 	    case 'object':
 	      cur = $H(cur)
 	      var t = [this._process(cur.getKeys(), name, parent)]
-	      var root = parent ? parent.$attributes.extra : t[0][1]
+	      var root = parent ? parent.retrieve('extra') : t[0][1]
 	      t.push(this._process([select_default[1]], name, root.getElement('option')))
 	      return t.concat(cur.getValues().map(function(v){
 	        var val = cur.keyOf(v).split('|').getLast()
@@ -208,7 +208,7 @@ JSAwesome = new Class({
 	        //Allows for custom values
 	        e = new Element('option', {html: cur, value: this._clean(val)})
 	        if(val.test(/^~/))
-            e.$attributes.extra = this._custom(parent.get('name').replace(/(.+)\[(.+)\]/, '$1[$2_other]'), parent.get('class'))
+            e.store('extra', this._custom(parent.get('name').replace(/(.+)\[(.+)\]/, '$1[$2_other]'), parent.get('class')))
 	      } else {
 	        if(name.test(/^#/)) {
 	          e = new Element('textarea', {
@@ -301,22 +301,22 @@ JSAwesome = new Class({
           var verify = new RegExp("("+name+')_\\d+$')
           var next = klass.test(verify) ? klass.replace(verify, '$1_'+(level+1)) : klass+'_'+(level+1) 
           //Dispose namespaced in a wrapper
-          $E('#'+this.name+' .'+klass.replace(verify,'$1')).getElements('.custom, select').each(function(i){
-            if(i.hasClass('custom') || i.$attributes.level > level+1)
+          $$('#'+this.name+' .'+klass.replace(verify,'$1'))[0].getElements('.custom, select').each(function(i){
+            if(i.hasClass('custom') || i.retrieve('level') > level+1)
               i.dispose()
           })
-          if(!option.$attributes.extra) return
+          if(!option.retrieve('extra')) return
           var test = $(this.name).getElement('.'+next)
           //Replace or add the extras
           if(test)
-            var made = option.$attributes.extra.replaces(test)
+            var made = option.retrieve('extra').replaces(test)
           else
-            var made = option.$attributes.extra.inject(e, "after")
+            var made = option.retrieve('extra').inject(e, "after")
           made.fireEvent('change', {target:made})
         }.bind(this)
       }
     })    
-    select.$attributes.level = (level || 0) + 1
+    select.store('level', (level || 0) + 1)
     return select.adopt(options.map(
       function(o){
         return this._process(o, klass, select)

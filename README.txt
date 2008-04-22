@@ -9,8 +9,11 @@ Example:
       <label for="rad_cool">Cool man</label>
       <input type="text" name="rad_cool" value="neat"/>
       <label for="rad_neat"><input type="checkbox" name="rad_neat" checked="checked"/> Neat</label>
+    
+    A detailed overview of the library is now available at
+      http://vandev.com/2008/4/22/jsawesome
       
-    See the functional tests for detailed examples of what is possible
+    Also see the functional tests for more examples of what is possible
 
 More information:
     http://github.com/vanpelt/jsawesome/tree/master
