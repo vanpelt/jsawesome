@@ -88,7 +88,7 @@ JSAwesome = new Class({
 	    $(this.name).getParent('form').removeEvent('submit', this.validater)
 	},
 	validate: function(e) {
-	  return this.validations.filter(function(r){
+	  var valid = this.validations.filter(function(r){
 	    var checking = $(this.name).getElement('div .'+this._clean(r))
 	    var error = checking.getParent('.error')
 	    var invalid = this._check(checking)
@@ -119,6 +119,9 @@ JSAwesome = new Class({
 	    } else 
 	      return false
 	  }, this).length == 0
+	  if(!valid && $type(e) == "event")
+      e.stop()
+    return valid
 	},
 	_reset: function() { delay = 100 },
 	_check: function(element) {
@@ -132,8 +135,8 @@ JSAwesome = new Class({
       });
       if(invalid) return ["This is a required field", element, 'change']
     } else if(element.get('type') == "radio" && label['required']) {
-      var radios = element.getParent('fieldset').getElements('input')
-      if(radios.some(function(r){return r.get('value')}))
+      var radios = element.getParent('fieldset').getElements('input[type=radio]')
+      if(radios.some(function(r){return r.checked}))
         return false
       else
         return ["You must choose an option", new Elements(radios), 'click']
@@ -244,9 +247,16 @@ JSAwesome = new Class({
 	duplicate: function(e) {
 	  e.stop()
 	  var orig = e.target.getPrevious()
-	  if(!orig.name.test(/\[\]$/))
-	    orig.name = orig.name+"[]"
-	  orig.clone().inject(orig, 'after')
+	  var next = ""
+	  //Because mechanical turk sucks ass
+	  if(!orig.name.test(/\[\d+\]$/)) {
+	    next = orig.name+"[1]"
+	    orig.name = orig.name+"[0]"
+	  } else {
+	    var ind = orig.name.match(/\[(\d+)\]$/)[1].toInt() + 1
+	    next = orig.name.replace(/\[\d+\]$/, '['+ind+']')
+	  }
+	  orig.clone().set('name', next).inject(orig, 'after')
 	  new Element('br').inject(orig, 'after')
 	},
 	_capitalize: function(string){
