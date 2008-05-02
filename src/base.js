@@ -310,8 +310,11 @@ JSAwesome = new Class({
           var klass = e.get('class').split(' ')[0]
           var verify = new RegExp("("+name+')_\\d+$')
           var next = klass.test(verify) ? klass.replace(verify, '$1_'+(level+1)) : klass+'_'+(level+1) 
-          //Dispose namespaced in a wrapper
-          $$('#'+this.name+' .'+klass.replace(verify,'$1'))[0].getElements('.custom, select').each(function(i){
+          //Dispose namespaced in a wrapper (Make this better for floated elements...)
+          var test = $$('#'+this.name+' .'+klass.replace(verify,'$1'))[0]
+          if(test.get('tag') != 'div')
+            test = test.getParent('div')
+          test.getElements('.custom, select').each(function(i){
             if(i.hasClass('custom') || i.retrieve('level') > level+1)
               i.dispose()
           })
