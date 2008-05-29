@@ -256,7 +256,10 @@ JSAwesome = new Class({
 	    var ind = orig.name.match(/\[(\d+)\]$/)[1].toInt() + 1
 	    next = orig.name.replace(/\[\d+\]$/, '['+ind+']')
 	  }
-	  orig.clone().set('name', next).inject(orig, 'after')
+	  var inp = new Element(orig.get('tag')).set('name', next)
+	  if(orig.get('tag') != 'textarea')
+	    inp.set('type', orig.get('type'))
+	  inp.inject(orig, 'after')
 	  new Element('br').inject(orig, 'after')
 	},
 	_capitalize: function(string){
